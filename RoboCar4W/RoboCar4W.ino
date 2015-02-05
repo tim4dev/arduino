@@ -12,7 +12,7 @@
 
 #include <AFMotor.h>
 
-#define VERSION "RoboCar4W ver.2015.01.30"
+#define VERSION "RoboCar4W ver.2015.02.05"
 
 /*
  * Уровень отладки.
@@ -47,16 +47,17 @@ byte MOTOR_PREV_DIRECTION; // предыдущее выполненное нап
  * Задержки для езды, поворотов на месте и плавных поворотов.
  * Подбираются экспериментально.
  */
-const int DELAY_RUN    = 7;
-const int DELAY_ROTATE = 700;
-const int DELAY_TURN   = 650;
-const int DELAY_TURN_BACK = 650;
+const int DELAY_RUN    = 2;
+const int DELAY_RUN_BACK = 50;
+const int DELAY_ROTATE = 500;
+const int DELAY_TURN   = 500;
+const int DELAY_TURN_BACK = 500;
 
 // в сантиметрах (distance threshold) Пороги расстояний до препятствия
 // Если ближе, то резкий разворот на месте, иначе плавный доворот
-const int DST_TRH_TURN = 27;
+const int DST_TRH_TURN = 28;
 // Если ближе, то стоп и назад
-const int DST_TRH_BACK = 14;
+const int DST_TRH_BACK = 15;
 
 /* пины для подключения HC-SR04 Ultrasonic Module Distance Measuring 
  * 13, 2 цифровые пины
@@ -119,8 +120,9 @@ void loop() {
     motorRunForward();
   } else {
     motorStop();
-    // ранее уже поворачивали влево?
-    if (MOTOR_TURN_LEFT == MOTOR_PREV_DIRECTION) {
+    // направление поворота выбираем рандомно
+    int rnd = random(1, 10);
+    if (rnd > 5) {
       if (debug  > 1) delay(500);
       motorTurnLeft();
     } else {
@@ -141,7 +143,7 @@ void motorInit()  {
   if (debug > 1) Serial.println("motor Init");
   if (debug > 5) return;
   // turn on motor
-  motorSetSpeed(150); // скорость мотора 0--255
+  motorSetSpeed(190); // скорость мотора 0--255, реально меньше 100 не работает
   motorStop();
 }
 
@@ -164,7 +166,7 @@ void motorRunBack()  {
   motorFrontRight.run(BACKWARD);
   motorRearLeft.run(BACKWARD);
   motorRearRight.run(BACKWARD);
-  delay(DELAY_TURN_BACK);
+  delay(DELAY_RUN_BACK);
 }
 
 // правый разворот на месте
