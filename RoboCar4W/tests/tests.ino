@@ -1,10 +1,17 @@
 /*
- * Тестирование всех DC моторов, сервомотора и датчиков для
+ * Тестирование моторов и датчиков для
+ *
  * Arduino Robot Car 4 Wheel with UltraSonic distance sensor
  * Copyright 2015 Yuriy Tim http://tim4dev.com
  */
-/* Sweep by BARRAGAN <http://barraganstudio.com> modified 8 Nov 2013 by Scott Fitzgerald http://arduino.cc/en/Tutorial/Sweep */
-/* Adafruit Motor shield library copyright Adafruit Industries LLC, 2009 */
+
+/* Sweep by BARRAGAN <http://barraganstudio.com>
+ modified 8 Nov 2013 by Scott Fitzgerald
+ http://arduino.cc/en/Tutorial/Sweep
+*/
+/* Adafruit Motor shield library
+   copyright Adafruit Industries LLC, 2009
+*/
 
 #include <AFMotor.h>
 #include <Servo.h>
@@ -24,12 +31,9 @@ const int SERVO_DELAY  = 300;
  */
 const int A_ANG[3] = {40, 90, 140}; // (array of angle) массив углов на которые должен поворачиваться серво для замера расстояний
 
-/* пины для подключения HC-SR04 Ultrasonic Module Distance Measuring 
- * 13, 2 цифровые пины
- * 14, 15 аналоговые пины A0 и A1 соответственно
- */
-#define SONIC_PIN_TRIG 14 //13
-#define SONIC_PIN_ECHO 15 //2
+/* пины для подключения HC-SR04 Ultrasonic Module Distance Measuring */
+#define SONIC_PIN_TRIG 13
+#define SONIC_PIN_ECHO 2
 // Detection distance: 2cm--450cm
 const int SONIC_DISTANCE_MAX = 450;
 const int SONIC_DISTANCE_MIN = 2;
@@ -56,7 +60,7 @@ void setup() {
 void loop() {
   int i, k;
   // тест DC моторов
-  for (i = 1; i < 5; i++) {
+/*  for (i = 1; i < 5; i++) {
     Serial.print("DC motor Init : "); Serial.print(i);
     AF_DCMotor motor(i); // определяем DC мотор
     delay(10);
@@ -76,11 +80,11 @@ void loop() {
     delay(5000);
   }
   Serial.println("---------");
-
+*/
   // тест серво мотора и датчика расстояния
   int distance;
 
-  Serial.println("Servo test (angle):");
+/*  Serial.println("Servo test (angle):");
   for (k = 0; k < 2; k++) {
     for (i = 0; i < 3; i++) {
       // поворот серво
@@ -91,7 +95,7 @@ void loop() {
     }
   }
   Serial.println("---------");
-
+*/
   Serial.println("UltraSonic distance sensor (cm)");
   servo.write( 90 );
   delay(SERVO_DELAY);
