@@ -2,18 +2,18 @@
  * Arduino Robot Car 4 Wheel with Motor Shield, UltraSonic distance sensor, Bluetooth remote control
  * Arduino робот машина, 4-х колесный, с платой управления моторами, ультразвуковой измеритель расстояния,
  * с Bluetooth управлением (c) Andi.Co https://play.google.com/store/apps/details?id=braulio.calle.bluetoothRCcontroller
- * 
- * Copyright 2015 Yuriy Tim 
+ *
+ * Copyright 2015 Yuriy Tim
  * Полное описание создания на сайте http://tim4dev.com
  *
  * Используются библиотеки:
  * Sweep by BARRAGAN <http://barraganstudio.com> modified 8 Nov 2013 by Scott Fitzgerald http://arduino.cc/en/Tutorial/Sweep
- * Adafruit Motor shield library copyright Adafruit Industries LLC, 2009 
+ * Adafruit Motor shield library copyright Adafruit Industries LLC, 2009
  */
 
 #include <AFMotor.h>
 
-#define VERSION "RoboCar4W ver.2015.02.10"
+#define VERSION "RoboCar4W ver.2015.02.12"
 
 /*
  * Уровень отладки.
@@ -30,6 +30,7 @@ AF_DCMotor motorRearLeft(3);   //  задний левый
 AF_DCMotor motorRearRight(4);  //  задний правый
 
 const byte SPEED_MIN = 100; // минимальная скорость моторов, если меньше - моторы остановятся. Подобрать экспериментально
+const byte SPEED_MAX = 255; // максимальная скорость моторов
 byte SPEED_CURRENT = 0; // текущая скорость моторов
 
 /*
@@ -49,7 +50,7 @@ const int DST_STOP = 20;
 boolean SAFE_DISTANCE = true; // измерение дистанции и безопасное движение. Если впереди близко препятствие, то стоп
 int distance = 0;
 
-/* пины для подключения HC-SR04 Ultrasonic Module Distance Measuring 
+/* пины для подключения HC-SR04 Ultrasonic Module Distance Measuring
  * 13, 2 цифровые пины
  * 14, 15 аналоговые пины A0 и A1 соответственно
  */
@@ -60,8 +61,7 @@ const int SONIC_DISTANCE_MAX = 450;
 const int SONIC_DISTANCE_MIN = 2;
 
 // для управления по блютуз
-char btCommand     = 'S';
-char btPrevCommand = 'A';
+char btCommand = 'S';
 // счетчики для определения потери связи с блютуз
 unsigned long btTimer0 = 2000;  //Stores the time (in millis since execution started)
 unsigned long btTimer1 = 0;     //Stores the time when the last command was received from the phone
@@ -84,7 +84,6 @@ void setup() {
 void loop() {
   if (Serial.available() > 0) {
     btTimer1 = millis();
-    btPrevCommand = btCommand;
     btCommand = Serial.read();
     //Serial.println(btCommand);
     switch (btCommand){
@@ -115,9 +114,10 @@ void loop() {
     case 'H':  //BL
       motorTurnBackLeft();
       break;
-/*       case 'W':  //Lights ON
-        break;
-      case 'w':  //Lights OFF
+    case 'W':  // демо программа (в оригинале Lights ON)
+      roboCarDemo();
+      break;
+/*      case 'w':  //Lights OFF
         break;
       case 'U':  //Back ON
         break;
@@ -138,7 +138,7 @@ void loop() {
         break;
  */      default:  //Get SPEED_CURRENT
       if ( btCommand == 'q' ){
-         motorSetSpeed(255);  //Full SPEED
+         motorSetSpeed(SPEED_MAX);  //Full SPEED
       } else{
         //Chars '0' - '9' have an integer equivalence of 48 - 57, accordingly.
         if ( (btCommand >= 48) && (btCommand <= 57) ) {
@@ -148,7 +148,7 @@ void loop() {
         }
       } // else
     } // switch
-  } // if (Serial.available() > 0) 
+  } // if (Serial.available() > 0)
   else{
     btTimer0 = millis();  //Get the current time (millis since execution started).
     //Check if it has been 500ms since we received last btCommand.
@@ -177,26 +177,28 @@ void motorInit()  {
 boolean isSafeDistance() {
     if ( SAFE_DISTANCE )  {
         // замер расстояния
-        distance = measureDistance(); 
+        distance = measureDistance();
         // препятствие так близко что надо ехать назад ?
         if ( distance < DST_STOP ) {
             return false;
-        } 
+        }
     } else {
         return true;
     }
-}  
+}
 
 // движение вперед по прямой
-void motorRunForward()  {
+// если обнаружено препятствие, то машина останавливается и возвращается FALSE, иначе - TRUE
+boolean motorRunForward()  {
   if ( !isSafeDistance() )  {
       motorStop();
-      return;
-  }  
+      return false;
+  }
   motorFrontLeft.run(FORWARD);
   motorFrontRight.run(FORWARD);
   motorRearLeft.run(FORWARD);
   motorRearRight.run(FORWARD);
+  return true;
 }
 
 // движение назад по прямой
@@ -216,15 +218,17 @@ void motorRotateRight()  {
 }
 
 // правый плавный поворот (при движении вперед)
-void motorTurnRight()  {
+// если обнаружено препятствие, то машина останавливается и возвращается FALSE, иначе - TRUE
+boolean motorTurnRight()  {
   if ( !isSafeDistance() )  {
       motorStop();
-      return;
+      return false;
   }
   motorFrontLeft.run(FORWARD);
   motorFrontRight.run(RELEASE);
   motorRearLeft.run(FORWARD);
   motorRearRight.run(RELEASE);
+  return true;
 }
 
 // правый плавный поворот (при движении назад)
@@ -244,15 +248,17 @@ void motorRotateLeft()  {
 }
 
 // левый плавный поворот (при движении вперед)
-void motorTurnLeft()  {
+// если обнаружено препятствие, то машина останавливается и возвращается FALSE, иначе - TRUE
+boolean motorTurnLeft()  {
   if ( !isSafeDistance() )  {
       motorStop();
-      return;
+      return false;
   }
   motorFrontLeft.run(RELEASE);
   motorFrontRight.run(FORWARD);
   motorRearLeft.run(RELEASE);
   motorRearRight.run(FORWARD);
+  return true;
 }
 
 // левый плавный поворот (при движении назад)
@@ -275,10 +281,10 @@ void motorStop()  {
 // см SPEED_MIN
 void motorSetSpeed(int speed)  {
   // скорость мотора 0--255
-  if (speed > 255)
-    speed = 255;
-  if (speed < 0)
-    speed = 0;
+  if (speed > SPEED_MAX)
+    speed = SPEED_MAX;
+  if (speed < SPEED_MIN)
+    speed = SPEED_MIN;
   motorFrontLeft.setSpeed(speed);
   motorFrontRight.setSpeed(speed);
   motorRearLeft.setSpeed(speed);
@@ -313,4 +319,69 @@ int measureDistance()  {
     return SONIC_DISTANCE_MAX;
 
   return distance;
+}
+
+// правый или левый очень плавный поворот (при движении вперед)
+// поворот за счет разных скоростей колес
+// speedL - скорость левых  колес
+// speedR - скорость правых колес
+// если (speedL > speedR) то поворот будет вправо и наоборот
+// если обнаружено препятствие, то машина останавливается и возвращается FALSE, иначе - TRUE
+boolean motorSmoothTurn(byte speedL, byte speedR)  {
+  if ( !isSafeDistance() )  {
+      motorStop();
+      return false;
+  }
+  // разные скорости
+  // левые моторы
+  motorFrontLeft.setSpeed(speedL);
+  motorRearLeft.setSpeed(speedL);
+  // правые моторы
+  motorFrontRight.setSpeed(speedR);
+  motorRearRight.setSpeed(speedR);
+  // ехать вперед
+  motorFrontLeft.run(FORWARD);
+  motorFrontRight.run(FORWARD);
+  motorRearLeft.run(FORWARD);
+  motorRearRight.run(FORWARD);
+
+  return true;
+}
+
+// Демо программа в автоматическом (неуправляемом) режиме.
+// Выписывает фигуру, похожую на 8-ку
+// При обнаружении препятствия машина останавливается.
+void roboCarDemo()  {
+  SAFE_DISTANCE = true; // безопасное движение - стоп при обнаружении препятствия
+
+  // вперед
+  motorSetSpeed(200);
+  if ( !motorRunForward() ) // если обнаружено препятствие, то стоп
+    return;
+  delay(500); // временная задержка подбирается экспериментально
+
+  // разворот влево
+  if ( !motorTurnLeft() )  // если обнаружено препятствие, то стоп
+    return;
+  delay(2000);
+
+  // вперед
+  motorSetSpeed(130);
+  if ( !motorRunForward() )   // если обнаружено препятствие, то стоп
+    return;
+  delay(500);
+
+  // разворот вправо
+  if ( !motorTurnRight() )  // если обнаружено препятствие, то стоп
+    return;
+  delay(2000);
+
+  // вперед на максималке
+  motorSetSpeed(SPEED_MAX);
+  if ( !motorRunForward() ) // если обнаружено препятствие, то стоп
+    return;
+  delay(500);
+
+  // стоп
+  motorStop();
 }
