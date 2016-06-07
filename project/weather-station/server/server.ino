@@ -26,10 +26,10 @@ const String SSID      = "*****";
 const String PASSWORD  = "*****";
 
 // для доступа к веб серверу
-const String DEST_HOST = "tim4dev.com";
-const String DEST_PORT = "80";
-const String DEST_URL  = "/index.php";
-const String SOURCE_KEY= "1234";
+const String DEST_HOST = "ваш хост";  // например tim4dev.com
+const String DEST_PORT = "ваш порт";  // обычно 80
+const String DEST_URL  = "/ваш путь/weather.php";
+const String SOURCE_KEY= "ваш ключ доступа"; // должен совпадать с $access_key из config.php
 
 
 
