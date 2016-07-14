@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Weather Station</string>
+    <string name="etUrl">Введите url</string>
+    <string name="tvData">Нажмите кнопку \"Обновить\"</string>
+    <string name="tvRefresh">Обновить</string>
+    <string name="tvLink">Проект Метеостанция. tim4dev.com</string>
+</resources>

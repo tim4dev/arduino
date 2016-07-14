@@ -42,7 +42,7 @@ checkAccess();
  * v - напряжение питания
  * m - millis() - количество миллисекунд с момента начала выполнения программы на плате Arduino
  * k - ключ
- * http://host/arduino/weather.php?type=dht&t=15&h=23&v=3.3&s=20&k=7373
+ * http://host/arduino/weather.php?type=dht&t=15&h=23&v=3.3&s=20&k=12345
  */
 function save_dht()
 {
@@ -150,7 +150,7 @@ function save_dht()
  * p - давление
  * m - millis() - количество миллисекунд с момента начала выполнения программы на плате Arduino
  * k - ключ
- * http://host/arduino/weather.php?type=bmp&t=15&p=1013&s=10&k=7373
+ * http://host/arduino/weather.php?type=bmp&t=15&p=1013&s=10&k=12345
  */
 function save_bmp()
 {
