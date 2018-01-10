@@ -724,7 +724,7 @@ void myDhtRead()
     float curHum  = 0.0;
     for (int i = 0; i < COUNT_MEASURE; i++) {
         curTemp = curTemp + dht.readTemperature();
-        curHum  = curTemp + dht.readHumidity();
+        curHum  = curHum + dht.readHumidity();
         delay(50);
     }
     dhtData.temperature = round( curTemp / COUNT_MEASURE );
